@@ -70,7 +70,7 @@ func shortList(filestore []string, flags map[string]bool) {
 	} else if flags["r"] {
 		files = SortStringsDescending(filestore)
 	} else {
-		files = filestore
+		files = SortStringsAscending(filestore)
 	}
 	for _, file := range files {
 		exist, fileInfo, _ := check(file)
@@ -92,6 +92,8 @@ func shortList(filestore []string, flags map[string]bool) {
 					dirContents = sortFilesByModTime(dirContents)
 				} else if flags["r"] {
 					dirContents = SortStringsDescending(dirContents)
+				} else {
+					dirContents = SortStringsAscending(dirContents)
 				}
 				for _, entry := range dirContents {
 					if flags["a"] || entry[0] != '.' {
@@ -556,7 +558,7 @@ func listRecursive(path string, flags map[string]bool, indent string) {
 	} else if flags["r"] {
 		entries = SortStringsDescending(entries)
 	} else {
-		sort.Strings(entries)
+		entries = SortStringsAscending(entries)
 	}
 
 	printShort(entries)
@@ -574,19 +576,34 @@ func listRecursive(path string, flags map[string]bool, indent string) {
 	}
 }
 
+func SortStringsAscending(slice []string) []string {
+    n := len(slice)
+    // Bubble sort algorithm
+    for i := 0; i < n-1; i++ {
+        for j := 0; j < n-i-1; j++ {
+            // Compare adjacent elements
+            if slice[j] > slice[j+1] {
+                // Swap if they are in the wrong order
+                slice[j], slice[j+1] = slice[j+1], slice[j]
+            }
+        }
+    }
+    return slice
+}
+
 func SortStringsDescending(slice []string) []string {
-	n := len(slice)
-	// Bubble sort algorithm
-	for i := 0; i < n-1; i++ {
-		for j := 0; j < n-i-1; j++ {
-			// Compare adjacent elements
-			if slice[j] < slice[j+1] {
-				// Swap if they are in the wrong order
-				slice[j], slice[j+1] = slice[j+1], slice[j]
-			}
-		}
-	}
-	return slice
+    n := len(slice)
+    // Bubble sort algorithm
+    for i := 0; i < n-1; i++ {
+        for j := 0; j < n-i-1; j++ {
+            // Compare adjacent elements
+            if slice[j] < slice[j+1] {
+                // Swap if they are in the wrong order
+                slice[j], slice[j+1] = slice[j+1], slice[j]
+            }
+        }
+    }
+    return slice
 }
 
 func sortFilesByModTime(files []string) []string {
@@ -612,7 +629,7 @@ func printShort(files []string) {
 	for i, value := range files {
 		result += value
 		if i < len(files) {
-			result += " "
+			result += "  "
 		}
 	}
 
