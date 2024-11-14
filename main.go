@@ -5,7 +5,6 @@ import (
 	"io/fs"
 	"os"
 	"os/user"
-	"sort"
 	"strconv"
 	"strings"
 	"syscall"
@@ -614,14 +613,20 @@ func SortStringsDescending(slice []string) []string {
 }
 
 func sortFilesByModTime(files []string) []string {
-	sort.Slice(files, func(i, j int) bool {
-		infoI, errI := os.Stat(files[i])
-		infoJ, errJ := os.Stat(files[j])
-		if errI != nil || errJ != nil {
-			return files[i] < files[j] // Fall back to alphabetical order if there's an error
+	n := len(files)
+	for i := 0; i < n-1; i++ {
+		for j := 0; j < n-i-1; j++ {
+			infoI, errI := os.Stat(files[j])
+			infoJ, errJ := os.Stat(files[j+1])
+			if errI != nil || errJ != nil {
+				if files[j] > files[j+1] {
+					files[j], files[j+1] = files[j+1], files[j]
+				}
+			} else if infoI.ModTime().Before(infoJ.ModTime()) {
+				files[j], files[j+1] = files[j+1], files[j]
+			}
 		}
-		return infoI.ModTime().After(infoJ.ModTime()) // Most recent first
-	})
+	}
 	return files
 }
 
