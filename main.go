@@ -12,6 +12,12 @@ import (
 	"unicode"
 )
 
+var colorMap = Colors()
+
+const (
+	Reset = "\033[0m" // Reset color
+)
+
 func main() {
 	flags := map[string]bool{
 		"a": false,
@@ -137,7 +143,7 @@ func directoryList(dircontent []string, file string) []string {
 }
 
 func longList(files []string, flags map[string]bool) {
-	//files = customAlphaSort(files)
+	// files = customAlphaSort(files)
 
 	// Sort files based on flags before processing
 	// if flags["t"] {
@@ -314,7 +320,6 @@ func sortEntries(entries []os.DirEntry, flags map[string]bool) {
 	if flags["t"] {
 		sortEntriesByTime(entries)
 	}
-
 }
 
 func compareEntries(a, b os.DirEntry) bool {
@@ -337,7 +342,7 @@ func compareStrings(a, b string) bool {
 	return len(aRunes) < len(bRunes)
 }
 
-func reverseEntries(entries []os.DirEntry,) {
+func reverseEntries(entries []os.DirEntry) {
 	for i := 0; i < len(entries)/2; i++ {
 		j := len(entries) - 1 - i
 		entries[i], entries[j] = entries[j], entries[i]
@@ -395,6 +400,7 @@ func sortEntriesByTime(entries []os.DirEntry) {
 		}
 	}
 }
+
 func getLongFormat(path string) string {
 	//////fmt.Printf("Debug: Entering getLongFormat for path: %s\n", path)
 
@@ -413,6 +419,7 @@ func getLongFormat(path string) string {
 	size := linkInfo.Size()
 	modTime := linkInfo.ModTime().Format("Jan  2 15:04")
 	name := baseName(path)
+	color := GetFileColor(linkInfo)
 
 	// mt.Printf("Debug: Basic file info - Size: %d, ModTime: %s, Name: %s\n", size, modTime, name)
 
@@ -441,7 +448,7 @@ func getLongFormat(path string) string {
 		}
 	}
 
-	result := fmt.Sprintf("%s %2d %s %s %6d %s %s", modeStr, nlink, username, groupname, size, modTime, name)
+	result := fmt.Sprintf("%s %2d %s %s %6d %s %s%s%s", modeStr, nlink, username, groupname, size, modTime, color, name, Reset)
 	return result
 }
 
@@ -577,33 +584,33 @@ func listRecursive(path string, flags map[string]bool, indent string) {
 }
 
 func SortStringsAscending(slice []string) []string {
-    n := len(slice)
-    // Bubble sort algorithm
-    for i := 0; i < n-1; i++ {
-        for j := 0; j < n-i-1; j++ {
-            // Compare adjacent elements
-            if slice[j] > slice[j+1] {
-                // Swap if they are in the wrong order
-                slice[j], slice[j+1] = slice[j+1], slice[j]
-            }
-        }
-    }
-    return slice
+	n := len(slice)
+	// Bubble sort algorithm
+	for i := 0; i < n-1; i++ {
+		for j := 0; j < n-i-1; j++ {
+			// Compare adjacent elements
+			if slice[j] > slice[j+1] {
+				// Swap if they are in the wrong order
+				slice[j], slice[j+1] = slice[j+1], slice[j]
+			}
+		}
+	}
+	return slice
 }
 
 func SortStringsDescending(slice []string) []string {
-    n := len(slice)
-    // Bubble sort algorithm
-    for i := 0; i < n-1; i++ {
-        for j := 0; j < n-i-1; j++ {
-            // Compare adjacent elements
-            if slice[j] < slice[j+1] {
-                // Swap if they are in the wrong order
-                slice[j], slice[j+1] = slice[j+1], slice[j]
-            }
-        }
-    }
-    return slice
+	n := len(slice)
+	// Bubble sort algorithm
+	for i := 0; i < n-1; i++ {
+		for j := 0; j < n-i-1; j++ {
+			// Compare adjacent elements
+			if slice[j] < slice[j+1] {
+				// Swap if they are in the wrong order
+				slice[j], slice[j+1] = slice[j+1], slice[j]
+			}
+		}
+	}
+	return slice
 }
 
 func sortFilesByModTime(files []string) []string {
@@ -654,4 +661,77 @@ func dirName(path string) string {
 		return "."
 	}
 	return strings.Join(parts[:len(parts)-1], "/")
+}
+
+func GetFileColor(file os.FileInfo) string {
+	if file.IsDir() {
+		if color, ok := colorMap["di"]; ok {
+			return "\033[" + color + "m"
+		}
+		return "\033[34m" // Default to blue if not found
+	}
+
+	// Check for symbolic links (symlinks)
+	if file.Mode()&os.ModeSymlink != 0 {
+		if color, ok := colorMap["ln"]; ok {
+			return "\033[" + color + "m"
+		}
+		return "\033[0m" // Default to light cyan if not found
+	}
+
+	// Check for executable files
+	if file.Mode().Perm()&0o111 != 0 {
+		if color, ok := colorMap["ex"]; ok {
+			return "\033[" + color + "m"
+		}
+		return "\033[32m" // Default to green if executable color is not found
+	}
+
+	// Check for block devices
+	if file.Mode()&os.ModeDevice != 0 && file.Mode()&os.ModeCharDevice == 0 {
+		if color, ok := colorMap["bd"]; ok {
+			return "\033[" + color + "m"
+		}
+		return "\033[33m" // Default to yellow for block devices
+	}
+
+	// Check for character devices
+	if file.Mode()&os.ModeCharDevice != 0 {
+		if color, ok := colorMap["cd"]; ok {
+			return "\033[" + color + "m"
+		}
+		return "\033[33m" // Default to yellow for character devices
+	}
+
+	// Check for named pipes (e.g., FIFO files)
+	if file.Mode()&os.ModeNamedPipe != 0 {
+		if color, ok := colorMap["pi"]; ok {
+			return "\033[" + color + "m"
+		}
+		return "\033[31m" // Default to red if not found
+	}
+
+	// Fallback to reset if no specific color is found
+	return Reset
+}
+
+func Colors() map[string]string {
+	lsColors := os.Getenv("LS_COLORS")
+	colorMap := make(map[string]string)
+
+	if lsColors == "" {
+		return colorMap // Return empty map if LS_COLORS is not set
+	}
+
+	pairs := strings.Split(lsColors, ":")
+	for _, pair := range pairs {
+		if strings.Contains(pair, "=") {
+			parts := strings.Split(pair, "=")
+			if len(parts) == 2 {
+				colorMap[parts[0]] = parts[1]
+			}
+		}
+	}
+
+	return colorMap
 }
