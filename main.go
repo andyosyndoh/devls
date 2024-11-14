@@ -84,12 +84,14 @@ func shortList(filestore []string, flags map[string]bool) {
 			message = append(message, errorMessage)
 			continue
 		}
+		color := GetFileColor(fileInfo)
 		if !fileInfo.IsDir() {
 			if flags["a"] || file[0] != '.' {
-				validFiles = append(validFiles, file)
+				validFiles = append(validFiles, color+file+Reset)
 			}
 		} else {
 			if flags["R"] {
+				fmt.Println("here")
 				listRecursive(file, flags, "")
 			} else {
 				dirContents := directoryList([]string{}, file)
@@ -102,14 +104,24 @@ func shortList(filestore []string, flags map[string]bool) {
 				}
 				for _, entry := range dirContents {
 					if flags["a"] || entry[0] != '.' {
-						directories = append(directories, entry)
+						ok, info, _ := check(entry)
+						color := ""
+						if ok {
+							color = GetFileColor(info)
+						}
+						directories = append(directories, color+entry+Reset)
 					}
 				}
 				if flags["a"] {
 					directories = append([]string{".", ".."}, directories...)
 					for _, entry := range dirContents {
 						if entry[0] == '.' && entry != "." && entry != ".." {
-							directories = append(directories, entry)
+							ok, info, _ := check(entry)
+							color := ""
+							if ok {
+                                color = GetFileColor(info)
+							}
+							directories = append(directories, color+entry+Reset)
 						}
 					}
 				}
@@ -567,6 +579,7 @@ func listRecursive(path string, flags map[string]bool, indent string) {
 		entries = SortStringsAscending(entries)
 	}
 
+	
 	printShort(entries)
 	fmt.Println()
 
