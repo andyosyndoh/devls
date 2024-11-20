@@ -29,7 +29,6 @@ func ShortList(filestore []string, flags map[string]bool) {
 			}
 		} else {
 			if flags["R"] {
-				fmt.Println("here")
 				listRecursive(file, flags, "")
 			} else {
 				dirContents := directoryList([]string{}, file)
