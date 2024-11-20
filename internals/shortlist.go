@@ -41,24 +41,14 @@ func ShortList(filestore []string, flags map[string]bool) {
 				}
 				for _, entry := range dirContents {
 					if flags["a"] || entry[0] != '.' {
-						ok, info, _ := check(entry)
-						color := ""
-						if ok {
-							color = GetFileColor(info.Mode(), info.Name())
-						}
-						directories = append(directories, color+entry+Reset)
+						directories = append(directories, entry)
 					}
 				}
 				if flags["a"] {
 					directories = append([]string{".", ".."}, directories...)
 					for _, entry := range dirContents {
 						if entry[0] == '.' && entry != "." && entry != ".." {
-							ok, info, _ := check(entry)
-							color := ""
-							if ok {
-								color = GetFileColor(info.Mode(), info.Name())
-							}
-							directories = append(directories, color+entry+Reset)
+							directories = append(directories, entry)
 						}
 					}
 				}
@@ -67,12 +57,12 @@ func ShortList(filestore []string, flags map[string]bool) {
 	}
 	print(message)
 	if len(validFiles) > 0 {
-		printShort(validFiles)
+		printShort(validFiles , "")
 	}
 	if len(validFiles) > 0 && len(directories) > 0 && !flags["R"] {
 		fmt.Println()
 	}
 	if !flags["R"] {
-		printShort(directories)
+		printShort(directories, "")
 	}
 }

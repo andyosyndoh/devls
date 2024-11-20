@@ -43,10 +43,21 @@ func print(files []string) {
 	}
 }
 
-func printShort(files []string) {
+func printShort(files []string, path string) {
 	var result string
 	for i, value := range files {
-		result += value
+		var exist bool
+		var fileInfo fs.FileInfo
+		if path != "" {
+			exist, fileInfo, _ = check(path + "/" + value)
+		} else {
+			exist, fileInfo, _ = check(value)
+		}
+		if !exist {
+			continue
+		}
+		color := GetFileColor(fileInfo.Mode(), fileInfo.Name())
+		result += color + value + Reset
 		if i < len(files) {
 			result += "  "
 		}

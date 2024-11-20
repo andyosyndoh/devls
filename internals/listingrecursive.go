@@ -69,7 +69,7 @@ func listRecursive(path string, flags map[string]bool, indent string) {
 		return
 	}
 
-	fmt.Printf("%s%s:\n", indent, path)
+	fmt.Printf("%s:\n", path)
 	var entries []string
 	for _, file := range files {
 		if flags["a"] || file.Name()[0] != '.' {
@@ -86,7 +86,7 @@ func listRecursive(path string, flags map[string]bool, indent string) {
 	}
 
 	
-	printShort(entries)
+	printShort(entries, path)
 	fmt.Println()
 
 	for _, entry := range entries {
@@ -95,7 +95,7 @@ func listRecursive(path string, flags map[string]bool, indent string) {
 		if err != nil {
 			continue
 		}
-		if info.IsDir() {
+		if info.IsDir() &&  info.Mode()&os.ModeSymlink == 0{
 			listRecursive(fullPath, flags, indent+"  ")
 		}
 	}
