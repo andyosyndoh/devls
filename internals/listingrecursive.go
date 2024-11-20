@@ -91,11 +91,20 @@ func listRecursive(path string, flags map[string]bool, indent string) {
 
 	for _, entry := range entries {
 		fullPath := joinPath(path, entry)
-		info, err := os.Stat(fullPath)
+		
+		// Use os.Lstat to get file information, including symbolic links.
+		info, err := os.Lstat(fullPath)
 		if err != nil {
 			continue
 		}
-		if info.IsDir() &&  info.Mode()&os.ModeSymlink == 0{
+	
+		// Skip symbolic links.
+		if info.Mode()&os.ModeSymlink != 0 {
+			continue
+		}
+	
+		// Recurse if it's a directory.
+		if info.IsDir() {
 			listRecursive(fullPath, flags, indent+"  ")
 		}
 	}
