@@ -78,7 +78,6 @@ func LongList(files []string, flags map[string]bool) {
 			}
 
 			if flags["R"] {
-				fmt.Println()
 				for _, entry := range entries {
 					if entry.IsDir() && entry.Name() != "." && entry.Name() != ".." {
 						subdir := joinPath(file, entry.Name())
