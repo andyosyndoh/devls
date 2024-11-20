@@ -18,10 +18,10 @@ func calculateTotalBlocks(path string, includeHidden bool) int64 {
 		return total
 	}
 	for _, names := range entries {
-		if !includeHidden && isHidden(names.Name()) {
+		name := names.Name()
+		if !includeHidden && isHidden(name) {
 			continue
 		}
-		name := names.Name()
 		entry, err := os.Lstat(path + "/" + name)
 		if err != nil {
 			continue
