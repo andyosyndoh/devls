@@ -51,10 +51,10 @@ func getLongFormat(path string) string {
 
     result := ""
     if linkInfo.Mode()&os.ModeCharDevice != 0 || linkInfo.Mode()&os.ModeDevice != 0 {
-        stat := getDeviceStat(path + "/" + linkInfo.Name())
+        stat := getDeviceStat(path)
         major, minor := majorMinor(stat.Rdev)
         result = fmt.Sprintf("%-10s %*d %-*s %-*s %*d, %*d %s %s %s",
-            modeStr, LinkLen, nlink, UserLen, username, GroupLen, groupname,
+            modeStr[1:], LinkLen, nlink, UserLen, username, GroupLen, groupname,
             MajorLen, major, MinorLen, minor, modTime, color+name+Reset, linked)
     } else {
         result = fmt.Sprintf("%-10s %*d %-*s %-*s %*d %s %s %s",

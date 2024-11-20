@@ -37,7 +37,7 @@ func calculateTotalBlocks(path string, includeHidden bool) int64 {
 
 		// Check for device files and calculate their major/minor lengths
 		if entry.Mode()&os.ModeCharDevice != 0 || entry.Mode()&os.ModeDevice != 0 {
-			stat := getDeviceStat(path + "/" + entry.Name())
+			stat := getDeviceStat(path + "/" + name)
 			major, minor := majorMinor(stat.Rdev)
 			a := len(strconv.Itoa(int(major))) + len(strconv.Itoa(int(minor))) + 2
 			if a >= SizeLen {
