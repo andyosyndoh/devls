@@ -9,58 +9,58 @@ import (
 )
 
 func getLongFormat(path string) string {
-	//////fmt.Printf("Debug: Entering getLongFormat for path: %s\n", path)
+    linkInfo, err := os.Lstat(path)
+    if err != nil {
+        return ""
+    }
 
-	linkInfo, err := os.Lstat(path)
-	if err != nil {
-		// //fmt.Printf("Debug: Error with Lstat: %v\n", err)
-		return ""
-	}
+    mode := linkInfo.Mode()
+    nlink := linkInfo.Sys().(*syscall.Stat_t).Nlink
+    uid := linkInfo.Sys().(*syscall.Stat_t).Uid
+    gid := linkInfo.Sys().(*syscall.Stat_t).Gid
+    size := linkInfo.Size()
+    modTime := linkInfo.ModTime().Format("Jan  2 15:04")
+    name := baseName(path)
+    color := GetFileColor(linkInfo.Mode(), fmt.Sprint(linkInfo))
 
-	//////fmt.Printf("Debug: Lstat successful. File mode: %v\n", linkInfo.Mode())
+    username := strconv.FormatUint(uint64(uid), 10)
+    groupname := strconv.FormatUint(uint64(gid), 10)
 
-	mode := linkInfo.Mode()
-	nlink := linkInfo.Sys().(*syscall.Stat_t).Nlink
-	uid := linkInfo.Sys().(*syscall.Stat_t).Uid
-	gid := linkInfo.Sys().(*syscall.Stat_t).Gid
-	size := linkInfo.Size()
-	modTime := linkInfo.ModTime().Format("Jan  2 15:04")
-	name := baseName(path)
-	color := GetFileColor(linkInfo.Mode(), fmt.Sprint(linkInfo))
+    if u, err := user.LookupId(strconv.Itoa(int(uid))); err == nil {
+        username = u.Username
+    }
+    if g, err := user.LookupGroupId(strconv.Itoa(int(gid))); err == nil {
+        groupname = g.Name
+    }
 
-	// mt.Printf("Debug: Basic file info - Size: %d, ModTime: %s, Name: %s\n", size, modTime, name)
+    modeStr := mode.String()
+    colorlink := ""
+    linked := ""
 
-	username := strconv.FormatUint(uint64(uid), 10)
-	groupname := strconv.FormatUint(uint64(gid), 10)
-
-	if u, err := user.LookupId(strconv.Itoa(int(uid))); err == nil {
-		username = u.Username
-	}
-	if g, err := user.LookupGroupId(strconv.Itoa(int(gid))); err == nil {
-		groupname = g.Name
-	}
-
-	//////fmt.Printf("Debug: Username: %s, Groupname: %s\n", username, groupname)
-
-	modeStr := mode.String()
-	colorlink := ""
-	linked := ""
-
-	if mode&os.ModeSymlink != 0 {
-		// //fmt.Println("Debug: File is a symlink")
-		modeStr = "l" + modeStr[1:] // Ensure the first character is 'l' for symlinks
-		link, err := os.Readlink(path)
-		if err == nil {
-			linkInfo, err := os.Lstat(link)
-			if err == nil { 
-				colorlink = GetFileColor(linkInfo.Mode(), fmt.Sprint(linkInfo))
+    if mode&os.ModeSymlink != 0 {
+        modeStr = "l" + modeStr[1:]
+        link, err := os.Readlink(path)
+        if err == nil {
+            linkInfo, err := os.Lstat(link)
+            if err == nil { 
+                colorlink = GetFileColor(linkInfo.Mode(), fmt.Sprint(linkInfo))
             }
-			linked = fmt.Sprintf("-> %s%s%s", colorlink, link, Reset)
-			//////fmt.Printf("Debug: Symlink target: %s\n", link)
-			// For symlinks, we'll keep the size of the link itself, not the target
-		}
-	}
+            linked = fmt.Sprintf("-> %s%s%s", colorlink, link, Reset)
+        }
+    }
 
-	result := fmt.Sprintf("%s %2d %s %s %6d %s %s%s%s %s", modeStr, nlink, username, groupname, size, modTime, color, name, Reset, linked)
-	return result
+    result := ""
+    if linkInfo.Mode()&os.ModeCharDevice != 0 || linkInfo.Mode()&os.ModeDevice != 0 {
+        stat := getDeviceStat(path + "/" + linkInfo.Name())
+        major, minor := majorMinor(stat.Rdev)
+        result = fmt.Sprintf("%-10s %*d %-*s %-*s %*d, %*d %s %s %s",
+            modeStr, LinkLen, nlink, UserLen, username, GroupLen, groupname,
+            MajorLen, major, MinorLen, minor, modTime, color+name+Reset, linked)
+    } else {
+        result = fmt.Sprintf("%-10s %*d %-*s %-*s %*d %s %s %s",
+            modeStr, LinkLen, nlink, UserLen, username, GroupLen, groupname,
+            SizeLen, size, modTime, color+name+Reset, linked)
+    }
+
+    return result
 }
