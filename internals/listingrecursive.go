@@ -7,9 +7,9 @@ import (
 )
 
 func listRecursiveLong(path string, flags map[string]bool, indent string) {
-	fmt.Printf("\n%s%s:\n", indent, path)
+	fmt.Printf("\n%s:\n", path)
 	totalBlocks := calculateTotalBlocks(path, flags["a"])
-	fmt.Printf("%stotal %d\n", indent, totalBlocks)
+	fmt.Printf("total %d\n", totalBlocks)
 
 	entries, err := os.ReadDir(path)
 	if err != nil {
@@ -45,7 +45,7 @@ func listRecursiveLong(path string, flags map[string]bool, indent string) {
 		} else if entry.Name() == ".." {
 			format = strings.Replace(format, baseName(dirName(path)), "..", 1)
 		}
-		fmt.Printf("%s%s\n", indent, format)
+		fmt.Printf("%s\n", format)
 	}
 
 	var subdirs []string

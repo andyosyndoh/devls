@@ -70,7 +70,7 @@ func baseName(path string) string {
 func dirName(path string) string {
 	parts := strings.Split(path, "/")
 	if len(parts) == 1 {
-		return "."
+		return ".."
 	}
 	return strings.Join(parts[:len(parts)-1], "/")
 }

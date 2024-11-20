@@ -48,6 +48,9 @@ func LongList(files []string, flags map[string]bool) {
 
 			sortEntries(entries, flags)
 
+			if flags["R"] {
+				fmt.Println(".:")
+			}
 			totalBlocks := calculateTotalBlocks(file, flags["a"])
 			// fmt.Printf("Debug: Total blocks before division: %d\n", totalBlocks*2)
 			fmt.Printf("total %d\n", totalBlocks)
