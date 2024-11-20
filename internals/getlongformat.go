@@ -19,7 +19,7 @@ func getLongFormat(path string) string {
     uid := linkInfo.Sys().(*syscall.Stat_t).Uid
     gid := linkInfo.Sys().(*syscall.Stat_t).Gid
     size := linkInfo.Size()
-    modTime := linkInfo.ModTime().Format("Jan  2 15:04")
+    modTime := linkInfo.ModTime().Format("Jan 2 15:04")
     name := baseName(path)
     color := GetFileColor(linkInfo.Mode(), fmt.Sprint(linkInfo))
 
