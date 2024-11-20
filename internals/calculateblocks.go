@@ -1,44 +1,33 @@
 package internals
 
 import (
-	"fmt"
 	"os"
+	"syscall"
 )
 
 func calculateTotalBlocks(path string, includeHidden bool) int64 {
 	var total int64
 
-	files, _ := os.ReadDir(path)
-	for _, file := range files {
-		if !includeHidden && file.Name()[0] == '.' {
+	entries, err := os.ReadDir(path)
+	if err != nil {
+		return total
+	}
+	for _, entry := range entries {
+		if!includeHidden && isHidden(entry.Name()) {
+            continue
+        }
+		name := entry.Name()
+		names, err := os.Lstat(path + "/" + name)
+		if err != nil {
 			continue
 		}
-		info, err := file.Info()
-		if err == nil {
-			size := info.Size()
-			blocks := (size + 511) / 512
-			total += blocks
-			fmt.Printf("Debug: File %s, size %d, blocks %d\n", file.Name(), size, blocks)
-		}
+		blocksize := names.Sys().(*syscall.Stat_t)
+		total += blocksize.Blocks / 2
+
 	}
+	return total
+}
 
-	if includeHidden {
-		if info, err := os.Stat(path); err == nil {
-			currentDirBlocks := (info.Size() + 511) / 512
-			total += currentDirBlocks
-			fmt.Printf("Debug: Current directory ., blocks %d\n", currentDirBlocks)
-		}
-
-		if parentInfo, err := os.Stat(dirName(path)); err == nil {
-			parentDirBlocks := (parentInfo.Size() + 511) / 512
-			total += parentDirBlocks
-			fmt.Printf("Debug: Parent directory .., blocks %d\n", parentDirBlocks)
-		}
-	}
-
-	// Convert to 1K blocks without rounding up
-	totalKB := total / 2
-	fmt.Printf("Debug: Total blocks before conversion: %d, after conversion: %d\n", total, totalKB)
-
-	return totalKB
+func isHidden(name string) bool {
+	return name[0] == '.'
 }
