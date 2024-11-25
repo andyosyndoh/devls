@@ -2,7 +2,7 @@ package internals
 
 import (
 	"os"
-	"unicode"
+	"strings"
 )
 
 func sortEntries(entries []os.DirEntry, flags map[string]bool) {
@@ -39,19 +39,15 @@ func compareEntries(a, b os.DirEntry) bool {
 }
 
 func compareStrings(a, b string) bool {
-	aRunes := []rune(a)
-	bRunes := []rune(b)
-	for i := 0; i < len(aRunes) && i < len(bRunes); i++ {
-		aLower := unicode.ToLower(aRunes[i])
-		bLower := unicode.ToLower(bRunes[i])
-		if aLower != bLower {
-			return aLower < bLower
-		}
-		if aRunes[i] != bRunes[i] {
-			return aRunes[i] < bRunes[i]
-		}
+	aLower := strings.ToLower(a)
+	bLower := strings.ToLower(b)
+
+	if aLower != bLower {
+		return aLower < bLower
 	}
-	return len(aRunes) < len(bRunes)
+
+	// If lowercase versions are equal, compare the original strings
+	return a < b
 }
 
 func reverseEntries(entries []os.DirEntry) {
