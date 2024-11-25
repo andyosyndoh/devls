@@ -45,11 +45,11 @@ func ShortList(filestore []string, flags map[string]bool) {
 				}
 				if flags["a"] {
 					directories = append([]string{".", ".."}, directories...)
-					for _, entry := range dirContents {
-						if entry[0] == '.' && entry != "." && entry != ".." {
-							directories = append(directories, entry)
-						}
-					}
+					// for _, entry := range dirContents {
+					// 	if entry[0] == '.' && entry != "." && entry != ".." {
+					// 		directories = append(directories, entry)
+					// 	}
+					// }
 				}
 			}
 		}
