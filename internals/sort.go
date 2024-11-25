@@ -24,7 +24,18 @@ func sortEntries(entries []os.DirEntry, flags map[string]bool) {
 }
 
 func compareEntries(a, b os.DirEntry) bool {
-	return compareStrings(a.Name(), b.Name())
+	aName := a.Name()
+	bName := b.Name()
+
+	// Special case for "[" file
+	if aName == "[" {
+		return true
+	}
+	if bName == "[" {
+		return false
+	}
+
+	return compareStrings(aName, bName)
 }
 
 func compareStrings(a, b string) bool {
@@ -62,6 +73,7 @@ func sortEntriesByTime(entries []os.DirEntry) {
 		}
 	}
 }
+
 func SortStringsAscending(slice []string) []string {
 	n := len(slice)
 	// Bubble sort algorithm
