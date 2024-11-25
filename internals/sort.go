@@ -6,21 +6,22 @@ import (
 )
 
 func sortEntries(entries []os.DirEntry, flags map[string]bool) {
-	n := len(entries)
-	for i := 0; i < n-1; i++ {
-		for j := 0; j < n-i-1; j++ {
-			if compareEntries(entries[j+1], entries[j]) {
-				entries[j], entries[j+1] = entries[j+1], entries[j]
-			}
-		}
-	}
+    if flags["t"] {
+        sortEntriesByTime(entries)
+    } else {
+        n := len(entries)
+        for i := 0; i < n-1; i++ {
+            for j := 0; j < n-i-1; j++ {
+                if compareEntries(entries[j+1], entries[j]) {
+                    entries[j], entries[j+1] = entries[j+1], entries[j]
+                }
+            }
+        }
+    }
 
-	if flags["r"] {
-		reverseEntries(entries)
-	}
-	if flags["t"] {
-		sortEntriesByTime(entries)
-	}
+    if flags["r"] {
+        reverseEntries(entries)
+    }
 }
 
 func compareEntries(a, b os.DirEntry) bool {
@@ -46,7 +47,6 @@ func compareStrings(a, b string) bool {
 		return aLower < bLower
 	}
 
-	// If lowercase versions are equal, compare the original strings
 	return a < b
 }
 
