@@ -35,11 +35,15 @@ func LongList(files []string, flags map[string]bool) {
 			}
 
 			var entries []os.DirEntry
-			for _, entry := range dirEntries {
-				if shouldShowFile(entry.Name(), flags["a"]) {
-					entries = append(entries, entry)
-				}
-			}
+            if flags["a"] {
+                // Add . and .. at the beginning of the list
+                entries = append(entries, createDotEntry(".", file), createDotEntry("..", dirName(file)))
+            }
+            for _, entry := range dirEntries {
+                if shouldShowFile(entry.Name(), flags["a"]) {
+                    entries = append(entries, entry)
+                }
+            }
 
 			// fmt.Println("Before sorting:")
 			// for _, entry := range entries {
@@ -54,13 +58,7 @@ func LongList(files []string, flags map[string]bool) {
 			totalBlocks := calculateTotalBlocks(file, flags["a"])
 			// fmt.Printf("Debug: Total blocks before division: %d\n", totalBlocks*2)
 			fmt.Printf("total %d\n", totalBlocks)
-
-			if flags["a"] {
-				// Add . and .. at the beginning of the list
-				dotEntries := []os.DirEntry{createDotEntry(".", file), createDotEntry("..", dirName(file))}
-				entries = append(dotEntries, entries...)
-			}
-
+			
 			for _, entry := range entries {
 				entryPath := joinPath(file, entry.Name())
 				if entry.Name() == "." {
