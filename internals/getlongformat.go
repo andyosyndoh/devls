@@ -6,6 +6,7 @@ import (
 	"os/user"
 	"strconv"
 	"syscall"
+	"time"
 )
 
 func getLongFormat(path string) string {
@@ -19,7 +20,15 @@ func getLongFormat(path string) string {
 	uid := linkInfo.Sys().(*syscall.Stat_t).Uid
 	gid := linkInfo.Sys().(*syscall.Stat_t).Gid
 	size := linkInfo.Size()
-	modTime := linkInfo.ModTime().Format("Jan 2 15:04")
+	modTime := linkInfo.ModTime()
+	var timeStr string
+	if time.Since(modTime) < 6*30*24*time.Hour {
+		// Less than 6 months old
+		timeStr = modTime.Format("Jan _2 15:04")
+	} else {
+		// More than 6 months old
+		timeStr = modTime.Format("Jan _2  2006")
+	}
 	name := baseName(path)
 	color := GetFileColor(linkInfo.Mode(), fmt.Sprint(linkInfo))
 
@@ -52,22 +61,22 @@ func getLongFormat(path string) string {
 			linked = fmt.Sprintf("-> %s%s%s", colorlink, link, Reset)
 		}
 	}
-    displayName := name
-    if name == "[" {
-        displayName = "'" + name + "'"
-    }
+	displayName := name
+	if name == "[" {
+		displayName = "'" + name + "'"
+	}
 
 	result := ""
 	if linkInfo.Mode()&os.ModeCharDevice != 0 || linkInfo.Mode()&os.ModeDevice != 0 {
 		stat := getDeviceStat(path)
 		major, minor := majorMinor(stat.Rdev)
-		result = fmt.Sprintf("%-11s %*d %-*s %-*s %*d, %*d %s %s %s",
+		result = fmt.Sprintf("%-10s %*d %-*s %-*s %*d, %*d %s %s %s",
 			modeStr[1:], LinkLen, nlink, UserLen, username, GroupLen, groupname,
-			MajorLen, major, MinorLen, minor, modTime, color+displayName+Reset, linked)
+			MajorLen, major, MinorLen, minor, timeStr, color+displayName+Reset, linked)
 	} else {
-		result = fmt.Sprintf("%-11s %*d %-*s %-*s %*d %s %s %s",
+		result = fmt.Sprintf("%-10s %*d %-*s %-*s %*d %s %s %s",
 			modeStr, LinkLen, nlink, UserLen, username, GroupLen, groupname,
-			SizeLen, size, modTime, color+displayName+Reset, linked)
+			SizeLen, size, timeStr, color+displayName+Reset, linked)
 	}
 
 	return result
