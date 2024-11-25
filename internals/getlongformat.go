@@ -92,12 +92,8 @@ func hasExtendedAttributes(path string) bool {
 		return false
 	}
 
-	buf := make([]byte, size)
-
-	_, err = syscall.Listxattr(path, buf)
-	if err != nil {
-		return false
-	}
-
-	return true
+	
+    buf := make([]byte, size)
+    _, err = syscall.Listxattr(path, buf)
+    return err == nil
 }
