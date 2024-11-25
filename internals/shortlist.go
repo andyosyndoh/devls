@@ -22,10 +22,9 @@ func ShortList(filestore []string, flags map[string]bool) {
 			message = append(message, errorMessage)
 			continue
 		}
-		color := GetFileColor(fileInfo.Mode(), fileInfo.Name())
 		if !fileInfo.IsDir() {
 			if flags["a"] || file[0] != '.' {
-				validFiles = append(validFiles, color+file+Reset)
+				validFiles = append(validFiles, file)
 			}
 		} else {
 			if flags["R"] {
@@ -62,7 +61,7 @@ func ShortList(filestore []string, flags map[string]bool) {
 	if len(validFiles) > 0 && len(directories) > 0 && !flags["R"] {
 		fmt.Println()
 	}
-	if !flags["R"] {
+	if !flags["R"] && len(directories) > 0 {
 		printShort(directories, "")
 	}
 }
