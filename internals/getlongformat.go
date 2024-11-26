@@ -48,11 +48,6 @@ func getLongFormat(path string) string {
 		modeStr = string(modeStr[0]) + modeStr[2:len(modeStr)-1] + "t"
 	}
 	permlength := 10
-	if hasExtendedAttributes(path) && strings.Contains(path, "/dev"){
-		modeStr += "+"
-		permlength = 11
-
-	}
 
 	colorlink := ""
 	linked := ""
