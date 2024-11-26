@@ -1,67 +1,74 @@
 package internals
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
-func ShortList(filestore []string, flags map[string]bool) {
-	var message []string
-	var validFiles []string
-	var directories []string
-	var errorMessage string
-	var files []string
-	if flags["t"] {
-		files = sortFilesByModTime(filestore)
-	} else if flags["r"] {
-		files = SortStringsDescending(filestore)
-	} else {
-		files = SortStringsAscending(filestore)
-	}
+func ShortList(files []string, flags map[string]bool) {
+	showDirectoryNames := flags["R"] || len(files) > 1
+	isFirstDirectory := true
+
 	for _, file := range files {
-		exist, fileInfo, _ := check(file)
+		exist, fileInfo, isSymlink := check(file)
 		if !exist {
-			errorMessage = fmt.Sprintf("ls: cannot access '%v': No such file or directory", file)
-			message = append(message, errorMessage)
+			fmt.Printf("ls: cannot access '%v': No such file or directory\n", file)
 			continue
 		}
+		if isSymlink {
+			fmt.Println(file)
+			continue
+		}
+
 		if !fileInfo.IsDir() {
-			if flags["a"] || file[0] != '.' {
-				validFiles = append(validFiles, file)
+			if shouldShowFile(file, flags["a"]) {
+				fmt.Println(file)
 			}
 		} else {
+			if showDirectoryNames {
+				if !isFirstDirectory {
+					fmt.Println()
+				}
+				fmt.Printf("%s:\n", file)
+				isFirstDirectory = false
+			}
+
+			dirEntries, err := os.ReadDir(file)
+			if err != nil {
+				fmt.Printf("Error reading directory %s: %v\n", file, err)
+				continue
+			}
+
+			var entries []os.DirEntry
+			for _, entry := range dirEntries {
+				if shouldShowFile(entry.Name(), flags["a"]) {
+					entries = append(entries, entry)
+				}
+			}
+
+			sortEntries(entries, flags)
+
+			if flags["a"] {
+				dotEntries := []os.DirEntry{createDotEntry(".", file), createDotEntry("..", dirName(file))}
+				entries = append(dotEntries, entries...)
+			}
+
+			var fileNames []string
+			for _, entry := range entries {
+				fileNames = append(fileNames, entry.Name())
+			}
+
+			printShort(fileNames, file)
+
 			if flags["R"] {
-				listRecursive(file, flags, "")
-			} else {
-				dirContents := directoryList([]string{}, file)
-				if flags["t"] {
-					dirContents = sortFilesByModTime(dirContents)
-				} else if flags["r"] {
-					dirContents = SortStringsDescending(dirContents)
-				} else {
-					dirContents = SortStringsAscending(dirContents)
-				}
-				for _, entry := range dirContents {
-					if flags["a"] || entry[0] != '.' {
-						directories = append(directories, entry)
+				for _, entry := range entries {
+					if entry.IsDir() && entry.Name() != "." && entry.Name() != ".." {
+						subdir := joinPath(file, entry.Name())
+						fmt.Println()
+						ShortList([]string{subdir}, flags)
 					}
-				}
-				if flags["a"] {
-					directories = append([]string{".", ".."}, directories...)
-					// for _, entry := range dirContents {
-					// 	if entry[0] == '.' && entry != "." && entry != ".." {
-					// 		directories = append(directories, entry)
-					// 	}
-					// }
 				}
 			}
 		}
-	}
-	print(message)
-	if len(validFiles) > 0 {
-		printShort(validFiles , "")
-	}
-	if len(validFiles) > 0 && len(directories) > 0 && !flags["R"] {
-		fmt.Println()
-	}
-	if !flags["R"] && len(directories) > 0 {
-		printShort(directories, "")
 	}
 }
