@@ -7,7 +7,7 @@ import (
 
 func LongList(files []string, flags map[string]bool) {
 	files = sortFiles(files)
-	for _, file := range files {
+	for i, file := range files {
 		n := file
 		exist, fileInfo, isSymlink := check(file)
 		if !exist {
@@ -84,8 +84,11 @@ func LongList(files []string, flags map[string]bool) {
 			}
 		}
 
-		if len(files) > 1 {
-			fmt.Println()
+		if i != len(files)-1 {
+			exist, fileInfo, _ := check(files[i+1])
+			if exist && fileInfo.IsDir() {
+				fmt.Println()
+			}
 		}
 	}
 }
