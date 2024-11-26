@@ -14,6 +14,7 @@ func LongList(files []string, flags map[string]bool) {
 			fmt.Printf("ls: cannot access '%v': No such file or directory\n", file)
 			continue
 		}
+		_ = calculateTotalBlocks(".", flags["a"])
 		if isSymlink {
 			format := getLongFormat(file)
 			fmt.Println(format)
