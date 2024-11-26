@@ -3,7 +3,6 @@ package internals
 import (
 	"fmt"
 	"os"
-	"strings"
 )
 
 func LongList(files []string, flags map[string]bool) {
@@ -35,15 +34,15 @@ func LongList(files []string, flags map[string]bool) {
 			}
 
 			var entries []os.DirEntry
-            if flags["a"] {
-                // Add . and .. at the beginning of the list
-                entries = append(entries, createDotEntry(".", file), createDotEntry("..", dirName(file)))
-            }
-            for _, entry := range dirEntries {
-                if shouldShowFile(entry.Name(), flags["a"]) {
-                    entries = append(entries, entry)
-                }
-            }
+			if flags["a"] {
+				// Add . and .. at the beginning of the list
+				entries = append(entries, createDotEntry(".", file), createDotEntry("..", dirName(file)))
+			}
+			for _, entry := range dirEntries {
+				if shouldShowFile(entry.Name(), flags["a"]) {
+					entries = append(entries, entry)
+				}
+			}
 
 			// fmt.Println("Before sorting:")
 			// for _, entry := range entries {
@@ -53,12 +52,12 @@ func LongList(files []string, flags map[string]bool) {
 			sortEntries(entries, flags)
 
 			if flags["R"] {
-				fmt.Println(".:")
+				fmt.Printf("%v:\n", file)
 			}
 			totalBlocks := calculateTotalBlocks(file, flags["a"])
 			// fmt.Printf("Debug: Total blocks before division: %d\n", totalBlocks*2)
 			fmt.Printf("total %d\n", totalBlocks)
-			
+
 			for _, entry := range entries {
 				entryPath := joinPath(file, entry.Name())
 				if entry.Name() == "." {
@@ -67,11 +66,11 @@ func LongList(files []string, flags map[string]bool) {
 					entryPath = dirName(file)
 				}
 				format := getLongFormat(entryPath)
-				if entry.Name() == "." {
-					format = strings.Replace(format, baseName(file), ".", 1)
-				} else if entry.Name() == ".." {
-					format = strings.Replace(format, baseName(dirName(file)), "..", 1)
-				}
+				// if entry.Name() == "." {
+				// 	format = strings.Replace(format, baseName(file), ".", 1)
+				// } else if entry.Name() == ".." {
+				// 	format = strings.Replace(format, baseName(dirName(file)), "..", 1)
+				// }
 				fmt.Println(format)
 			}
 

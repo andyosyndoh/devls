@@ -83,5 +83,8 @@ func dirName(path string) string {
 	if len(parts) == 1 {
 		return ".."
 	}
-	return strings.Join(parts[:len(parts)-1], "/")
+	 str := "./" + parts[len(parts)-1]
+	// fmt.Println(str)
+	return str
+	// return strings.Join(parts[:len(parts)-1], "/")
 }
