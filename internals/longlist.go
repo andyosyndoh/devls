@@ -30,7 +30,7 @@ func LongList(files []string, flags map[string]bool) {
 			if len(files) > 1 {
 				fmt.Printf("%s:\n", file)
 			}
-			if file[len(file)-1] == '/' {
+			if file[len(file)-1] != '/' {
 				file += "/"
 			}
 			dirEntries, err := os.ReadDir(file)
