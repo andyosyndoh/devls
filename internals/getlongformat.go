@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/user"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -43,7 +44,7 @@ func getLongFormat(path string) string {
 	}
 
 	modeStr := mode.String()
-	if hasExtendedAttributes(path) {
+	if hasExtendedAttributes(path) && strings.Contains(path, "/dev"){
 		modeStr += "+"
 	}
 
