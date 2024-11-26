@@ -8,6 +8,7 @@ import (
 
 func listRecursiveLong(path string, flags map[string]bool, indent string) {
 	fmt.Printf("\n%s:\n", path)
+	// n := path
 	totalBlocks := calculateTotalBlocks(path, flags["a"])
 	fmt.Printf("total %d\n", totalBlocks)
 
@@ -39,12 +40,11 @@ func listRecursiveLong(path string, flags map[string]bool, indent string) {
 		} else if entry.Name() == ".." {
 			entryPath = dirName(path)
 		}
+		fmt.Println("here")
 		format := getLongFormat(entryPath)
-		if entry.Name() == "." {
-			format = strings.Replace(format, baseName(path), ".", 1)
-		} else if entry.Name() == ".." {
-			format = strings.Replace(format, baseName(dirName(path)), "..", 1)
-		}
+		// if n != "." && entry.Name() == "." || n != "." && entry.Name() == ".." {
+		// 	format = Name(format, entry.Name())
+		// }
 		fmt.Printf("%s\n", format)
 	}
 

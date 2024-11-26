@@ -6,6 +6,9 @@ import (
 )
 
 func sortEntries(entries []os.DirEntry, flags map[string]bool) {
+	if len(entries) == 1  {
+		return
+	}
     if flags["t"] {
         sortEntriesByTime(entries)
     } else {

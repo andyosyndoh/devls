@@ -82,7 +82,7 @@ func LongList(files []string, flags map[string]bool) {
 				for _, entry := range entries {
 					if entry.IsDir() && entry.Name() != "." && entry.Name() != ".." {
 						subdir := joinPath(file, entry.Name())
-						listRecursiveLong(subdir, flags, "  ")
+						LongList([]string{subdir}, flags,)
 					}
 				}
 			}
