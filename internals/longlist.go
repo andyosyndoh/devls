@@ -66,11 +66,9 @@ func LongList(files []string, flags map[string]bool) {
 					entryPath = dirName(file)
 				}
 				format := getLongFormat(entryPath)
-				// if entry.Name() == "." {
-				// 	format = strings.Replace(format, baseName(file), ".", 1)
-				// } else if entry.Name() == ".." {
-				// 	format = strings.Replace(format, baseName(dirName(file)), "..", 1)
-				// }
+				if entry.Name() == "." || entry.Name() == ".." {
+					format = Name(format, entry.Name())
+				}
 				fmt.Println(format)
 			}
 
@@ -88,4 +86,10 @@ func LongList(files []string, flags map[string]bool) {
 			fmt.Println()
 		}
 	}
+}
+
+func Name(format string, name string) string {
+	color, reset := ("\033[" + lsColors["di"] + "m"), Reset
+	format = format[:len(format)-1] + color + name + reset
+	return format
 }
