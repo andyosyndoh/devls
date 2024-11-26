@@ -44,8 +44,14 @@ func getLongFormat(path string) string {
 	}
 
 	modeStr := mode.String()
+	if strings.Contains(modeStr, "t") {
+		modeStr = string(modeStr[0]) + modeStr[2:len(modeStr)-1] + "t"
+	}
+	permlength := 10
 	if hasExtendedAttributes(path) && strings.Contains(path, "/dev"){
 		modeStr += "+"
+		permlength = 11
+
 	}
 
 	colorlink := ""
@@ -71,12 +77,12 @@ func getLongFormat(path string) string {
 	if linkInfo.Mode()&os.ModeCharDevice != 0 || linkInfo.Mode()&os.ModeDevice != 0 {
 		stat := getDeviceStat(path)
 		major, minor := majorMinor(stat.Rdev)
-		result = fmt.Sprintf("%-10s %*d %-*s %-*s %*d, %*d %s %s %s",
-			modeStr[1:], LinkLen, nlink, UserLen, username, GroupLen, groupname,
+		result = fmt.Sprintf("%-*s %*d %-*s %-*s %*d, %*d %s %s %s",
+			permlength,modeStr[1:], LinkLen, nlink, UserLen, username, GroupLen, groupname,
 			MajorLen, major, MinorLen, minor, timeStr, color+displayName+Reset, linked)
 	} else {
-		result = fmt.Sprintf("%-10s %*d %-*s %-*s %*d %s %s %s",
-			modeStr, LinkLen, nlink, UserLen, username, GroupLen, groupname,
+		result = fmt.Sprintf("%-*s %*d %-*s %-*s %*d %s %s %s",
+			permlength,modeStr, LinkLen, nlink, UserLen, username, GroupLen, groupname,
 			SizeLen, size, timeStr, color+displayName+Reset, linked)
 	}
 
