@@ -7,6 +7,7 @@ import (
 
 func LongList(files []string, flags map[string]bool) {
 	for _, file := range files {
+		n := file
 		exist, fileInfo, isSymlink := check(file)
 		if !exist {
 			fmt.Printf("ls: cannot access '%v': No such file or directory\n", file)
@@ -66,7 +67,7 @@ func LongList(files []string, flags map[string]bool) {
 					entryPath = dirName(file)
 				}
 				format := getLongFormat(entryPath)
-				if entry.Name() == "." || entry.Name() == ".." {
+				if  n != "." && entry.Name() == "." || n != "." && entry.Name() == ".."{
 					format = Name(format, entry.Name())
 				}
 				fmt.Println(format)
