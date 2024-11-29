@@ -3,10 +3,12 @@ package internals
 import (
 	"fmt"
 	"os"
+	"strings"
 )
+
 func LongList(files []string, flags map[string]bool) {
 	files = sortFiles(files)
-	for _, file := range files {
+	for i, file := range files {
 		n := file
 		exist, fileInfo, isSymlink := check(file)
 		if !exist {
@@ -26,7 +28,7 @@ func LongList(files []string, flags map[string]bool) {
 				fmt.Println(format)
 			}
 		} else {
-			if len(files) > 1 {
+			if len(files) > 1 || flags["R"] {
 				fmt.Printf("%s:\n", file)
 			}
 			if file[len(file)-1] != '/' {
@@ -40,7 +42,6 @@ func LongList(files []string, flags map[string]bool) {
 
 			var entries []os.DirEntry
 			if flags["a"] {
-				// Add . and .. at the beginning of the list
 				entries = append(entries, createDotEntry(".", file), createDotEntry("..", dirName(file)))
 			}
 			for _, entry := range dirEntries {
@@ -49,18 +50,9 @@ func LongList(files []string, flags map[string]bool) {
 				}
 			}
 
-			// fmt.Println("Before sorting:")
-			// for _, entry := range entries {
-			// 	fmt.Printf("  %s\n", entry.Name())
-			// }
-
 			sortEntries(entries, flags)
 
-			if flags["R"] {
-				fmt.Printf("%v:\n", file)
-			}
 			totalBlocks := calculateTotalBlocks(file, flags["a"])
-			// fmt.Printf("Debug: Total blocks before division: %d\n", totalBlocks*2)
 			fmt.Printf("total %d\n", totalBlocks)
 
 			for _, entry := range entries {
@@ -78,19 +70,37 @@ func LongList(files []string, flags map[string]bool) {
 			}
 
 			if flags["R"] {
+				var subdirs []string
 				for _, entry := range entries {
 					if entry.IsDir() && entry.Name() != "." && entry.Name() != ".." {
 						subdir := joinPath(file, entry.Name())
-						LongList([]string{subdir}, flags,)
+						subdir = cleanPath(subdir) // Remove double slashes
+						subdirs = append(subdirs, subdir)
+					}
+				}
+
+				for j, subdir := range subdirs {
+					fmt.Println() // Add a newline before each subdirectory listing
+					LongList([]string{subdir}, flags)
+					if j < len(subdirs)-1 || i < len(files)-1 {
+						fmt.Println() // Add a newline after each subdirectory listing, except for the last one
 					}
 				}
 			}
 		}
 
-		if len(files) > 1 {
+		if len(files) > 1 && i < len(files)-1 {
 			fmt.Println()
 		}
 	}
+}
+
+// Helper function to clean the path (remove double slashes)
+func cleanPath(path string) string {
+	for strings.Contains(path, "//") {
+		path = strings.ReplaceAll(path, "//", "/")
+	}
+	return path
 }
 
 func Name(format string, name string) string {
