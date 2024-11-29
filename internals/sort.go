@@ -6,6 +6,9 @@ import (
 )
 
 func sortEntries(entries []os.DirEntry, flags map[string]bool) {
+	if len(entries) == 1  {
+		return
+	}
     if flags["t"] {
         sortEntriesByTime(entries)
     } else {
@@ -58,6 +61,9 @@ func reverseEntries(entries []os.DirEntry) {
 }
 
 func sortEntriesByTime(entries []os.DirEntry) {
+	if len(entries) <= 3{
+		return 
+	}
 	n := len(entries)
 	for i := 0; i < n-1; i++ {
 		for j := 0; j < n-i-1; j++ {
@@ -86,6 +92,7 @@ func SortStringsAscending(slice []string) []string {
 }
 
 func SortStringsDescending(slice []string) []string {
+	
 	n := len(slice)
 	// Bubble sort algorithm
 	for i := 0; i < n-1; i++ {
@@ -100,20 +107,3 @@ func SortStringsDescending(slice []string) []string {
 	return slice
 }
 
-func sortFilesByModTime(files []string) []string {
-	n := len(files)
-	for i := 0; i < n-1; i++ {
-		for j := 0; j < n-i-1; j++ {
-			infoI, errI := os.Stat(files[j])
-			infoJ, errJ := os.Stat(files[j+1])
-			if errI != nil || errJ != nil {
-				if files[j] > files[j+1] {
-					files[j], files[j+1] = files[j+1], files[j]
-				}
-			} else if infoI.ModTime().Before(infoJ.ModTime()) {
-				files[j], files[j+1] = files[j+1], files[j]
-			}
-		}
-	}
-	return files
-}
