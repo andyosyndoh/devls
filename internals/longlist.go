@@ -45,38 +45,17 @@ func LongList(files []string, flags map[string]bool) {
 			totalBlocks := calculateTotalBlocks(dirPath, flags["a"])
 			fmt.Printf("total %d\n", totalBlocks)
 
-			// Create entries slice
 			var entries []os.DirEntry
 
+			// Add dot entries if -a flag is set
 			if flags["a"] {
-				// Current directory entry
-				format := getLongFormat(dirPath, true)
-				fmt.Printf("%s .\n", format)
-
-				// Get the actual parent directory path
-				var parentPath string
-				if dirPath == "./" {
-					parentPath = ".."
-				} else {
-					cleanPath := strings.TrimRight(dirPath, "/")
-					absPath, err := os.Getwd()
-					if err == nil {
-						fullPath := joinPath(absPath, cleanPath)
-						parentPath = joinPath(fullPath, "..")
-						//fmt.Printf("DEBUG: Full path: %s, Parent path: %s\n", fullPath, parentPath)
-					} else {
-						parentPath = ".."
-					}
-				}
-
-				parentFormat := getLongFormat(parentPath, true)
-				fmt.Printf("%s ..\n", parentFormat)
+				entries = append(entries, createDotEntry(".", dirPath))
+				entries = append(entries, createDotEntry("..", dirName(strings.TrimRight(dirPath, "/"))))
 			}
 
 			// Add regular entries to the slice
 			for _, entry := range dirEntries {
-				if shouldShowFile(entry.Name(), flags["a"]) &&
-					entry.Name() != "." && entry.Name() != ".." {
+				if shouldShowFile(entry.Name(), flags["a"]) {
 					entries = append(entries, entry)
 				}
 			}
@@ -84,10 +63,10 @@ func LongList(files []string, flags map[string]bool) {
 			// Sort entries
 			sortEntries(entries, flags)
 
-			// Process regular entries
+			// Process entries
 			for _, entry := range entries {
 				entryPath := joinPath(dirPath, entry.Name())
-				format := getLongFormat(entryPath, false)
+				format := getLongFormat(entryPath, entry.Name() == "." || entry.Name() == "..")
 
 				// Add color based on file type
 				color := GetFileColor(entry.Type(), entry.Name())

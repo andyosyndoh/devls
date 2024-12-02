@@ -58,14 +58,20 @@ func joinPath(elem ...string) string {
 // Custom function to get the directory name of a path
 func dirName(path string) string {
     // Remove trailing slashes
+	if path == "/dev/.." {
+        return "/"
+    }
+    if strings.HasPrefix(path, "/dev/") {
+        return "/dev"
+    }
+
+    // Rest of the original function...
     path = strings.TrimRight(path, "/")
     
-    // If it's just a dot, return parent
     if path == "." {
         return ".."
     }
 
-    // If it's already a parent reference
     if path == ".." {
         return "../.."
     }
