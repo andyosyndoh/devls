@@ -17,7 +17,13 @@ func LongList(files []string, flags map[string]bool) {
 
 		if isSymlink {
 			format := getLongFormat(file, false)
-			fmt.Println(format)
+			link, err := os.Readlink(file)
+			if err == nil {
+				linkColor := GetFileColor(fileInfo.Mode(), link)
+				fmt.Printf("%s %s -> %s%s%s\n", format, file, linkColor, link, Reset)
+			} else {
+				fmt.Println(format)
+			}
 			continue
 		}
 
@@ -113,7 +119,6 @@ func LongList(files []string, flags map[string]bool) {
 		}
 	}
 }
-
 // Helper function to clean the path (remove double slashes)
 func cleanPath(path string) string {
 	for strings.Contains(path, "//") {
