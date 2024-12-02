@@ -7,18 +7,6 @@ import (
 	"strings"
 )
 
-func directoryList(dircontent []string, file string) []string {
-	content, err := os.Open(file)
-	if err != nil {
-		return dircontent
-	}
-
-	names, err := content.Readdirnames(0)
-	if err != nil {
-		return dircontent
-	}
-	return names
-}
 
 func check(file string) (bool, fs.FileInfo, bool) {
 	info, err := os.Lstat(file)
@@ -35,12 +23,6 @@ func shouldShowFile(name string, showHidden bool) bool {
 		return true
 	}
 	return !strings.HasPrefix(name, ".")
-}
-
-func print(files []string) {
-	for _, value := range files {
-		fmt.Println(value)
-	}
 }
 
 func printShort(files []string, path string) {
@@ -71,20 +53,38 @@ func joinPath(elem ...string) string {
 	return strings.Join(elem, "/")
 }
 
-// Custom function to get the base name of a path
-func baseName(path string) string {
-	parts := strings.Split(path, "/")
-	return parts[len(parts)-1]
-}
+
 
 // Custom function to get the directory name of a path
 func dirName(path string) string {
-	parts := strings.Split(path, "/")
-	if len(parts) == 1 {
-		return ".."
-	}
-	 str := "./" + parts[len(parts)-1]
-	// fmt.Println(str)
-	return str
-	// return strings.Join(parts[:len(parts)-1], "/")
+    // Remove trailing slashes
+    path = strings.TrimRight(path, "/")
+    
+    // If it's just a dot, return parent
+    if path == "." {
+        return ".."
+    }
+
+    // If it's already a parent reference
+    if path == ".." {
+        return "../.."
+    }
+
+    // Get absolute path if possible
+    absPath, err := os.Getwd()
+    if err == nil {
+        fullPath := joinPath(absPath, path)
+        // Split the path
+        parts := strings.Split(fullPath, "/")
+        if len(parts) > 1 {
+            return strings.Join(parts[:len(parts)-1], "/")
+        }
+    }
+
+    // Fallback to simple parent directory
+    parts := strings.Split(path, "/")
+    if len(parts) <= 1 {
+        return ".."
+    }
+    return strings.Join(parts[:len(parts)-1], "/")
 }

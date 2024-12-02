@@ -11,58 +11,6 @@ const (
 	Reset = "\033[0m" // Reset color
 )
 
-// func GetFileColor(file os.FileInfo) string {
-// 	if file.IsDir() {
-// 		if color, ok := colorMap["di"]; ok {
-// 			return "\033[" + color + "m"
-// 		}
-// 		return "\033[34m" // Default to blue if not found
-// 	}
-
-// 	// Check for symbolic links (symlinks)
-// 	if file.Mode()&os.ModeSymlink != 0 {
-// 		if color, ok := colorMap["ln"]; ok {
-// 			return "\033[" + color + "m"
-// 		}
-// 		return "\033[0m" // Default to light cyan if not found
-// 	}
-
-// 	// Check for executable files
-// 	if file.Mode().Perm()&0o111 != 0 {
-// 		if color, ok := colorMap["ex"]; ok {
-// 			return "\033[" + color + "m"
-// 		}
-// 		return "\033[32m" // Default to green if executable color is not found
-// 	}
-
-// 	// Check for block devices
-// 	if file.Mode()&os.ModeDevice != 0 && file.Mode()&os.ModeCharDevice == 0 {
-// 		if color, ok := colorMap["bd"]; ok {
-// 			return "\033[" + color + "m"
-// 		}
-// 		return "\033[33m" // Default to yellow for block devices
-// 	}
-
-// 	// Check for character devices
-// 	if file.Mode()&os.ModeCharDevice != 0 {
-// 		if color, ok := colorMap["cd"]; ok {
-// 			return "\033[" + color + "m"
-// 		}
-// 		return "\033[33m" // Default to yellow for character devices
-// 	}
-
-// 	// Check for named pipes (e.g., FIFO files)
-// 	if file.Mode()&os.ModeNamedPipe != 0 {
-// 		if color, ok := colorMap["pi"]; ok {
-// 			return "\033[" + color + "m"
-// 		}
-// 		return "\033[31m" // Default to red if not found
-// 	}
-
-// 	// Fallback to reset if no specific color is found
-// 	return Reset
-// }
-
 func Colors() map[string]string {
 	lsColors := os.Getenv("LS_COLORS")
 	colorMap := make(map[string]string)
@@ -114,9 +62,10 @@ func GetFileColor(mode os.FileMode, fileName string) string {
 		return getColorByExtension(strings.ToLower(getFileExtension(fileName)))
 	}
 }
+
 func getColorByExtension(ext string) string {
 	if color, ok := lsColors["*."+ext]; ok {
-		return "\033[" + color + "m" 
+		return "\033[" + color + "m"
 	}
 	return "\033[" + lsColors["rs"] + "m" // Default color
 }

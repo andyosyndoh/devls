@@ -9,81 +9,121 @@ import (
 func LongList(files []string, flags map[string]bool) {
 	files = sortFiles(files)
 	for i, file := range files {
-		n := file
 		exist, fileInfo, isSymlink := check(file)
 		if !exist {
 			fmt.Printf("ls: cannot access '%v': No such file or directory\n", file)
 			continue
 		}
-		_ = calculateTotalBlocks(".", flags["a"])
+
 		if isSymlink {
-			format := getLongFormat(file)
+			format := getLongFormat(file, false)
 			fmt.Println(format)
 			continue
 		}
 
 		if !fileInfo.IsDir() {
 			if shouldShowFile(file, flags["a"]) {
-				format := getLongFormat(file)
+				format := getLongFormat(file, false)
 				fmt.Println(format)
 			}
 		} else {
 			if len(files) > 1 || flags["R"] {
 				fmt.Printf("%s:\n", file)
 			}
+
+			dirPath := file
 			if file[len(file)-1] != '/' {
-				file += "/"
+				dirPath += "/"
 			}
-			dirEntries, err := os.ReadDir(file)
+
+			dirEntries, err := os.ReadDir(dirPath)
 			if err != nil {
 				fmt.Printf("Error reading directory %s: %v\n", file, err)
 				continue
 			}
 
+			totalBlocks := calculateTotalBlocks(dirPath, flags["a"])
+			fmt.Printf("total %d\n", totalBlocks)
+
+			// Create entries slice
 			var entries []os.DirEntry
+
 			if flags["a"] {
-				entries = append(entries, createDotEntry(".", file), createDotEntry("..", dirName(file)))
+				// Current directory entry
+				format := getLongFormat(dirPath, true)
+				fmt.Printf("%s .\n", format)
+
+				// Get the actual parent directory path
+				var parentPath string
+				if dirPath == "./" {
+					parentPath = ".."
+				} else {
+					cleanPath := strings.TrimRight(dirPath, "/")
+					absPath, err := os.Getwd()
+					if err == nil {
+						fullPath := joinPath(absPath, cleanPath)
+						parentPath = joinPath(fullPath, "..")
+						//fmt.Printf("DEBUG: Full path: %s, Parent path: %s\n", fullPath, parentPath)
+					} else {
+						parentPath = ".."
+					}
+				}
+
+				parentFormat := getLongFormat(parentPath, true)
+				fmt.Printf("%s ..\n", parentFormat)
 			}
+
+			// Add regular entries to the slice
 			for _, entry := range dirEntries {
-				if shouldShowFile(entry.Name(), flags["a"]) {
+				if shouldShowFile(entry.Name(), flags["a"]) &&
+					entry.Name() != "." && entry.Name() != ".." {
 					entries = append(entries, entry)
 				}
 			}
 
+			// Sort entries
 			sortEntries(entries, flags)
 
-			totalBlocks := calculateTotalBlocks(file, flags["a"])
-			fmt.Printf("total %d\n", totalBlocks)
-
+			// Process regular entries
 			for _, entry := range entries {
-				entryPath := joinPath(file, entry.Name())
-				if entry.Name() == "." {
-					entryPath = file
-				} else if entry.Name() == ".." {
-					entryPath = dirName(file)
+				entryPath := joinPath(dirPath, entry.Name())
+				format := getLongFormat(entryPath, false)
+
+				// Add color based on file type
+				color := GetFileColor(entry.Type(), entry.Name())
+
+				// Handle symlinks
+				if entry.Type()&os.ModeSymlink != 0 {
+					link, err := os.Readlink(entryPath)
+					if err == nil {
+						linkColor := GetFileColor(entry.Type(), link)
+						fmt.Printf("%s %s%s%s -> %s%s%s\n",
+							format, color, entry.Name(), Reset, linkColor, link, Reset)
+					} else {
+						fmt.Printf("%s %s%s%s\n", format, color, entry.Name(), Reset)
+					}
+				} else {
+					// Regular files and directories
+					fmt.Printf("%s %s%s%s\n", format, color, entry.Name(), Reset)
 				}
-				format := getLongFormat(entryPath)
-				if n != "." && entry.Name() == "." || n != "." && entry.Name() == ".." {
-					format = Name(format, entry.Name())
-				}
-				fmt.Println(format)
 			}
 
+			// Handle recursive listing
 			if flags["R"] {
 				var subdirs []string
 				for _, entry := range entries {
 					if entry.IsDir() && entry.Name() != "." && entry.Name() != ".." {
 						subdir := joinPath(file, entry.Name())
-						subdir = cleanPath(subdir) // Remove double slashes
+						subdir = cleanPath(subdir)
 						subdirs = append(subdirs, subdir)
 					}
 				}
 
 				for j, subdir := range subdirs {
-					fmt.Println() // Add a newline before each subdirectory listing
+					fmt.Println()
 					LongList([]string{subdir}, flags)
 					if j < len(subdirs)-1 || i < len(files)-1 {
-						fmt.Println() // Add a newline after each subdirectory listing, except for the last one
+						fmt.Println()
 					}
 				}
 			}

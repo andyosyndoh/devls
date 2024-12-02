@@ -9,9 +9,10 @@ import (
 	"time"
 )
 
-func getLongFormat(path string) string {
+func getLongFormat(path string, isDotEntry bool) string {
 	linkInfo, err := os.Lstat(path)
 	if err != nil {
+		fmt.Printf("DEBUG getLongFormat - Lstat error: %v\n", err)
 		return ""
 	}
 
@@ -21,16 +22,17 @@ func getLongFormat(path string) string {
 	gid := linkInfo.Sys().(*syscall.Stat_t).Gid
 	size := linkInfo.Size()
 	modTime := linkInfo.ModTime()
+
+	// fmt.Printf("DEBUG getLongFormat - File Mode: %v\n", mode)
+	// fmt.Printf("DEBUG getLongFormat - Is Directory: %v\n", linkInfo.IsDir())
+	// fmt.Printf("DEBUG getLongFormat - Number of links: %d\n", nlink)
+
 	var timeStr string
 	if time.Since(modTime) < 6*30*24*time.Hour {
-		// Less than 6 months old
 		timeStr = modTime.Format("Jan _2 15:04")
 	} else {
-		// More than 6 months old
 		timeStr = modTime.Format("Jan _2  2006")
 	}
-	name := baseName(path)
-	color := GetFileColor(linkInfo.Mode(), fmt.Sprint(linkInfo))
 
 	username := strconv.FormatUint(uint64(uid), 10)
 	groupname := strconv.FormatUint(uint64(gid), 10)
@@ -47,36 +49,18 @@ func getLongFormat(path string) string {
 		modeStr += "+"
 	}
 
-	colorlink := ""
-	linked := ""
-
-	if mode&os.ModeSymlink != 0 {
-		modeStr = "l" + modeStr[1:]
-		link, err := os.Readlink(path)
-		if err == nil {
-			linkInfo, err := os.Lstat(link)
-			if err == nil {
-				colorlink = GetFileColor(linkInfo.Mode(), fmt.Sprint(linkInfo))
-			}
-			linked = fmt.Sprintf("-> %s%s%s", colorlink, link, Reset)
-		}
-	}
-	displayName := name
-	if name == "[" {
-		displayName = "'" + name + "'"
-	}
-
-	result := ""
-	if linkInfo.Mode()&os.ModeCharDevice != 0 || linkInfo.Mode()&os.ModeDevice != 0 {
+	// Base format without the name
+	var result string
+	if mode&os.ModeCharDevice != 0 || mode&os.ModeDevice != 0 {
 		stat := getDeviceStat(path)
 		major, minor := majorMinor(stat.Rdev)
-		result = fmt.Sprintf("%-10s %*d %-*s %-*s %*d, %*d %s %s %s",
-			modeStr[1:], LinkLen, nlink, UserLen, username, GroupLen, groupname,
-			MajorLen, major, MinorLen, minor, timeStr, color+displayName+Reset, linked)
-	} else {
-		result = fmt.Sprintf("%-10s %*d %-*s %-*s %*d %s %s %s",
+		result = fmt.Sprintf("%-10s %*d %-*s %-*s %*d, %*d %s",
 			modeStr, LinkLen, nlink, UserLen, username, GroupLen, groupname,
-			SizeLen, size, timeStr, color+displayName+Reset, linked)
+			MajorLen, major, MinorLen, minor, timeStr)
+	} else {
+		result = fmt.Sprintf("%-10s %*d %-*s %-*s %*d %s",
+			modeStr, LinkLen, nlink, UserLen, username, GroupLen, groupname,
+			SizeLen, size, timeStr)
 	}
 
 	return result
@@ -92,8 +76,7 @@ func hasExtendedAttributes(path string) bool {
 		return false
 	}
 
-	
-    buf := make([]byte, size)
-    _, err = syscall.Listxattr(path, buf)
-    return err == nil
+	buf := make([]byte, size)
+	_, err = syscall.Listxattr(path, buf)
+	return err == nil
 }
