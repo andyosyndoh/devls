@@ -29,7 +29,6 @@ func LongList(files []string, flags map[string]bool) {
 
 		if !fileInfo.IsDir() {
 			if shouldShowFile(file, flags["a"]) {
-				fmt.Println("here")
 				format := getLongFormat(file, false)
 
 				color := GetFileColor(fileInfo.Mode(), file)

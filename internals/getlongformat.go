@@ -59,9 +59,9 @@ func getLongFormat(path string, isDotEntry bool) string {
 	}
 
 	modeStr := mode.String()
-	if hasExtendedAttributes(actualPath) {
-		modeStr += "+"
-	}
+	// if hasExtendedAttributes(actualPath) {
+	// 	modeStr += "+"
+	// }
 
 	// Correctly set the first character for special files
 	if mode&os.ModeSymlink != 0 {
