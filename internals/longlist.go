@@ -110,14 +110,18 @@ func LongList(files []string, flags map[string]bool) {
 					fmt.Println()
 					LongList([]string{subdir}, flags)
 					if j < len(subdirs)-1 || i < len(files)-1 {
-						fmt.Println()
+						// fmt.Println()
+						// fmt.Println()
 					}
 				}
 			}
 		}
 
 		if len(files) > 1 && i < len(files)-1 {
-			fmt.Println()
+			exist, fileInfo, _ := check(file)
+			if exist && fileInfo.IsDir() {
+				fmt.Println()
+			}
 		}
 	}
 }
