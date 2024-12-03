@@ -29,8 +29,12 @@ func LongList(files []string, flags map[string]bool) {
 
 		if !fileInfo.IsDir() {
 			if shouldShowFile(file, flags["a"]) {
+				fmt.Println("here")
 				format := getLongFormat(file, false)
-				fmt.Println(format)
+
+				color := GetFileColor(fileInfo.Mode(), file)
+				fmt.Printf("%s %s\n", format, color+file+Reset)
+				// fmt.Println(format)
 			}
 		} else {
 			if len(files) > 1 || flags["R"] {
@@ -82,8 +86,7 @@ func LongList(files []string, flags map[string]bool) {
 					link, err := os.Readlink(entryPath)
 					if err == nil {
 						linkColor := GetFileColor(entry.Type(), link)
-						fmt.Printf("%s %s%s%s -> %s%s%s\n",
-							format, color, entry.Name(), Reset, linkColor, link, Reset)
+						fmt.Printf("%s %s%s%s -> %s%s%s\n", format, color, entry.Name(), Reset, linkColor, link, Reset)
 					} else {
 						fmt.Printf("%s %s%s%s\n", format, color, entry.Name(), Reset)
 					}
@@ -119,6 +122,7 @@ func LongList(files []string, flags map[string]bool) {
 		}
 	}
 }
+
 // Helper function to clean the path (remove double slashes)
 func cleanPath(path string) string {
 	for strings.Contains(path, "//") {
