@@ -18,9 +18,11 @@ func LongList(files []string, flags map[string]bool) {
 		if isSymlink {
 			format := getLongFormat(file, false)
 			link, err := os.Readlink(file)
+			_, fileInfo2, _ := check(link)
 			if err == nil {
-				linkColor := GetFileColor(fileInfo.Mode(), link)
-				fmt.Printf("%s %s -> %s%s%s\n", format, file, linkColor, link, Reset)
+				linkColor := GetFileColor(fileInfo2.Mode(), link)
+				color := GetFileColor(fileInfo.Mode(), file)
+				fmt.Printf("%s %s%s%s -> %s%s%s\n", format,color, file, Reset, linkColor, link, Reset)
 			} else {
 				fmt.Println(format)
 			}
@@ -83,8 +85,9 @@ func LongList(files []string, flags map[string]bool) {
 				// Handle symlinks
 				if entry.Type()&os.ModeSymlink != 0 {
 					link, err := os.Readlink(entryPath)
+					_, fileInfo2, _ := check(file)
 					if err == nil {
-						linkColor := GetFileColor(entry.Type(), link)
+						linkColor := GetFileColor(fileInfo2.Mode(), link)
 						fmt.Printf("%s %s%s%s -> %s%s%s\n", format, color, entry.Name(), Reset, linkColor, link, Reset)
 					} else {
 						fmt.Printf("%s %s%s%s\n", format, color, entry.Name(), Reset)
