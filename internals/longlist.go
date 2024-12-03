@@ -151,7 +151,7 @@ func sortFiles(files []string) []string {
 	for _, file := range files {
 		info, err := os.Stat(file)
 		if err != nil {
-			fmt.Printf("Error accessing %s: %v\n", file, err)
+			fmt.Printf("ls: cannot access '%s': %v\n", file, err)
 			continue
 		}
 		if info.IsDir() {
