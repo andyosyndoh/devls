@@ -20,7 +20,7 @@ func main() {
 	}
 	// Parse command-line arguments for flags and target paths.
 	for _, arg := range os.Args[1:] {
-		if arg[0] == '-' {
+		if arg[0] == '-' && len(arg) > 1 {
 			for _, flag := range arg[1:] {
 				switch flag {
 				case 'a':
