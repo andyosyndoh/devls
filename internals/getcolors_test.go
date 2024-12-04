@@ -103,3 +103,61 @@ func Test_GetFileColor(t *testing.T) {
 		})
 	}
 }
+
+
+func Test_getFileExtension(t *testing.T) {
+	tests := []struct {
+		name string
+		arg  string
+		want string
+	}{
+		{
+			name: "File with single extension",
+			arg:  "example.txt",
+			want: "txt",
+		},
+		{
+			name: "File with multiple extensions",
+			arg:  "archive.tar.gz",
+			want: "gz",
+		},
+		{
+			name: "Hidden file with extension",
+			arg:  ".env",
+			want: "env",
+		},
+		{
+			name: "File with no extension",
+			arg:  "README",
+			want: "",
+		},
+		{
+			name: "Hidden file with no extension",
+			arg:  ".hiddenfile",
+			want: "hiddenfile",
+		},
+		{
+			name: "Empty string",
+			arg:  "",
+			want: "",
+		},
+		{
+			name: "File with trailing dot",
+			arg:  "file.",
+			want: "",
+		},
+		{
+			name: "File with multiple dots and no final extension",
+			arg:  "file.name.",
+			want: "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := getFileExtension(tt.arg); got != tt.want {
+				t.Errorf("getFileExtension() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
