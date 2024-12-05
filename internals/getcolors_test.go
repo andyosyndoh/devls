@@ -104,7 +104,6 @@ func Test_GetFileColor(t *testing.T) {
 	}
 }
 
-
 func Test_getFileExtension(t *testing.T) {
 	tests := []struct {
 		name string

@@ -6,25 +6,25 @@ import (
 )
 
 func sortEntries(entries []os.DirEntry, flags map[string]bool) {
-	if len(entries) == 1  {
+	if len(entries) == 1 {
 		return
 	}
-    if flags["t"] {
-        sortEntriesByTime(entries)
-    } else {
-        n := len(entries)
-        for i := 0; i < n-1; i++ {
-            for j := 0; j < n-i-1; j++ {
-                if compareEntries(entries[j+1], entries[j]) {
-                    entries[j], entries[j+1] = entries[j+1], entries[j]
-                }
-            }
-        }
-    }
+	if flags["t"] {
+		sortEntriesByTime(entries)
+	} else {
+		n := len(entries)
+		for i := 0; i < n-1; i++ {
+			for j := 0; j < n-i-1; j++ {
+				if compareEntries(entries[j+1], entries[j]) {
+					entries[j], entries[j+1] = entries[j+1], entries[j]
+				}
+			}
+		}
+	}
 
-    if flags["r"] {
-        reverseEntries(entries)
-    }
+	if flags["r"] {
+		reverseEntries(entries)
+	}
 }
 
 func compareEntries(a, b os.DirEntry) bool {
@@ -61,8 +61,8 @@ func reverseEntries(entries []os.DirEntry) {
 }
 
 func sortEntriesByTime(entries []os.DirEntry) {
-	if len(entries) <= 3{
-		return 
+	if len(entries) <= 3 {
+		return
 	}
 	n := len(entries)
 	for i := 0; i < n-1; i++ {
@@ -92,7 +92,7 @@ func SortStringsAscending(slice []string) []string {
 }
 
 func SortStringsDescending(slice []string) []string {
-	
+
 	n := len(slice)
 	// Bubble sort algorithm
 	for i := 0; i < n-1; i++ {
@@ -106,4 +106,3 @@ func SortStringsDescending(slice []string) []string {
 	}
 	return slice
 }
-

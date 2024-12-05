@@ -22,7 +22,7 @@ func LongList(files []string, flags map[string]bool) {
 			if err == nil {
 				linkColor := GetFileColor(fileInfo2.Mode(), link)
 				color := GetFileColor(fileInfo.Mode(), file)
-				fmt.Printf("%s %s%s%s -> %s%s%s\n", format,color, file, Reset, linkColor, link, Reset)
+				fmt.Printf("%s %s%s%s -> %s%s%s\n", format, color, file, Reset, linkColor, link, Reset)
 			} else {
 				fmt.Println(format)
 			}

@@ -27,4 +27,4 @@ func (c *CustomDirEntry) Info() (os.FileInfo, error) {
 	return os.Stat(c.path)
 }
 
- var SizeLen, LinkLen, UserLen, GroupLen, MajorLen, MinorLen = 0, 0, 0, 0, 0, 0
+var SizeLen, LinkLen, UserLen, GroupLen, MajorLen, MinorLen = 0, 0, 0, 0, 0, 0

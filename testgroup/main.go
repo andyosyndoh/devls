@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 )
+
 func Compare(a, b string) int {
 	if a == b {
 		return 0
@@ -14,6 +15,6 @@ func Compare(a, b string) int {
 	}
 }
 
-func main(){
+func main() {
 	fmt.Println(strings.Compare("-", "testgroup"))
 }

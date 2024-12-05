@@ -7,7 +7,6 @@ import (
 	"strings"
 )
 
-
 func check(file string) (bool, fs.FileInfo, bool) {
 	info, err := os.Lstat(file)
 	if err != nil {
@@ -53,44 +52,42 @@ func joinPath(elem ...string) string {
 	return strings.Join(elem, "/")
 }
 
-
-
 // Custom function to get the directory name of a path
 func dirName(path string) string {
-    // Remove trailing slashes
+	// Remove trailing slashes
 	if path == "/dev/.." {
-        return "/"
-    }
-    if strings.HasPrefix(path, "/dev/") {
-        return "/dev"
-    }
+		return "/"
+	}
+	if strings.HasPrefix(path, "/dev/") {
+		return "/dev"
+	}
 
-    // Rest of the original function...
-    path = strings.TrimRight(path, "/")
-    
-    if path == "." {
-        return ".."
-    }
+	// Rest of the original function...
+	path = strings.TrimRight(path, "/")
 
-    if path == ".." {
-        return "../.."
-    }
+	if path == "." {
+		return ".."
+	}
 
-    // Get absolute path if possible
-    absPath, err := os.Getwd()
-    if err == nil {
-        fullPath := joinPath(absPath, path)
-        // Split the path
-        parts := strings.Split(fullPath, "/")
-        if len(parts) > 1 {
-            return strings.Join(parts[:len(parts)-1], "/")
-        }
-    }
+	if path == ".." {
+		return "../.."
+	}
 
-    // Fallback to simple parent directory
-    parts := strings.Split(path, "/")
-    if len(parts) <= 1 {
-        return ".."
-    }
-    return strings.Join(parts[:len(parts)-1], "/")
+	// Get absolute path if possible
+	absPath, err := os.Getwd()
+	if err == nil {
+		fullPath := joinPath(absPath, path)
+		// Split the path
+		parts := strings.Split(fullPath, "/")
+		if len(parts) > 1 {
+			return strings.Join(parts[:len(parts)-1], "/")
+		}
+	}
+
+	// Fallback to simple parent directory
+	parts := strings.Split(path, "/")
+	if len(parts) <= 1 {
+		return ".."
+	}
+	return strings.Join(parts[:len(parts)-1], "/")
 }

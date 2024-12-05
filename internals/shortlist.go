@@ -46,12 +46,11 @@ func ShortList(files []string, flags map[string]bool) {
 				}
 			}
 
-			
 			if flags["a"] {
 				dotEntries := []os.DirEntry{createDotEntry(".", file), createDotEntry("..", dirName(file))}
 				entries = append(dotEntries, entries...)
 			}
-			
+
 			sortEntries(entries, flags)
 
 			var fileNames []string

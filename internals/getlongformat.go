@@ -103,6 +103,7 @@ func getLongFormat(path string, isDotEntry bool) string {
 
 	return result
 }
+
 // func hasExtendedAttributes(path string) bool {
 // 	size, err := syscall.Listxattr(path, nil)
 // 	if err != nil {

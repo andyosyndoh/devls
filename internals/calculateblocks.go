@@ -98,7 +98,7 @@ func majorMinor(rdev uint64) (uint64, uint64) {
 
 func CalculateParents(path string) int64 {
 	var total int64
-	paths := []string{".",".."}
+	paths := []string{".", ".."}
 
 	for _, p := range paths {
 		entry, err := os.Lstat(path + "/" + p)

@@ -58,4 +58,3 @@ func Test_cleanPath(t *testing.T) {
 		})
 	}
 }
-
