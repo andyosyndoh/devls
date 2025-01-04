@@ -61,6 +61,60 @@ func Test_compareStrings(t *testing.T) {
 }
 
 func TestSortStringsAscending(t *testing.T) {
+	type args struct {
+		slice []string
+	}
+	tests := []struct {
+		name string
+		args args
+		want []string
+	}{
+		{
+			name: "Empty slice",
+			args: args{slice: []string{}},
+			want: []string{},
+		},
+		{
+			name: "Single element",
+			args: args{slice: []string{"a"}},
+			want: []string{"a"},
+		},
+		{
+			name: "Already sorted",
+			args: args{slice: []string{"a", "b", "c"}},
+			want: []string{"a", "b", "c"},
+		},
+		{
+			name: "Reverse sorted",
+			args: args{slice: []string{"c", "b", "a"}},
+			want: []string{"a", "b", "c"},
+		},
+		{
+			name: "Mixed case",
+			args: args{slice: []string{"B", "a", "C"}},
+			want: []string{"B", "C", "a"},
+		},
+		{
+			name: "Numbers and letters",
+			args: args{slice: []string{"3", "1", "2", "b", "a"}},
+			want: []string{"1", "2", "3", "a", "b"},
+		},
+		{
+			name: "Duplicate elements",
+			args: args{slice: []string{"b", "a", "b", "c", "a"}},
+			want: []string{"a", "a", "b", "b", "c"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := SortStringsAscending(tt.args.slice); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("SortStringsAscending() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestSortStringsDescending(t *testing.T) {
     type args struct {
         slice []string
     }
@@ -80,35 +134,35 @@ func TestSortStringsAscending(t *testing.T) {
             want: []string{"a"},
         },
         {
-            name: "Already sorted",
-            args: args{slice: []string{"a", "b", "c"}},
-            want: []string{"a", "b", "c"},
+            name: "Already sorted descending",
+            args: args{slice: []string{"c", "b", "a"}},
+            want: []string{"c", "b", "a"},
         },
         {
-            name: "Reverse sorted",
-            args: args{slice: []string{"c", "b", "a"}},
-            want: []string{"a", "b", "c"},
+            name: "Ascending sorted",
+            args: args{slice: []string{"a", "b", "c"}},
+            want: []string{"c", "b", "a"},
         },
         {
             name: "Mixed case",
             args: args{slice: []string{"B", "a", "C"}},
-            want: []string{"B", "C", "a"},
+            want: []string{"a", "C", "B"},
         },
         {
             name: "Numbers and letters",
             args: args{slice: []string{"3", "1", "2", "b", "a"}},
-            want: []string{"1", "2", "3", "a", "b"},
+            want: []string{"b", "a", "3", "2", "1"},
         },
         {
             name: "Duplicate elements",
             args: args{slice: []string{"b", "a", "b", "c", "a"}},
-            want: []string{"a", "a", "b", "b", "c"},
+            want: []string{"c", "b", "b", "a", "a"},
         },
     }
     for _, tt := range tests {
         t.Run(tt.name, func(t *testing.T) {
-            if got := SortStringsAscending(tt.args.slice); !reflect.DeepEqual(got, tt.want) {
-                t.Errorf("SortStringsAscending() = %v, want %v", got, tt.want)
+            if got := SortStringsDescending(tt.args.slice); !reflect.DeepEqual(got, tt.want) {
+                t.Errorf("SortStringsDescending() = %v, want %v", got, tt.want)
             }
         })
     }
